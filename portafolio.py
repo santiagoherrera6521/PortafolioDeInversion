@@ -1,3 +1,4 @@
+from datetime import date
 from interfaces import PortafolioBase, Transaccion
 from estructuras import ListaEnlazada, Pila, Cola, MatrizPrecios
 
@@ -36,3 +37,15 @@ class PortafolioReal(PortafolioBase):
 
         if self.cantidades[ticker] < cantidad:
             raise ValueError("No tienes suficientes unidades para vender")
+
+    def comprar(self, ticker: str, cantidad: float) -> Transaccion:
+        precio = self.activos[ticker].get_precio_actual()
+        self._validar_compra(ticker, cantidad, precio)
+        comision = precio * cantidad * 0.005
+        costo_total = precio * cantidad + comision
+        self.capital_disponible -= costo_total
+        self.cantidades[ticker] = self.cantidades.get(ticker, 0) + cantidad
+        t = Transaccion("compra", ticker, cantidad, precio, comision, date.today())
+        self.historial.agregar_al_final(t)
+        self.compras.push(t)
+        return t
