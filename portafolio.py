@@ -88,3 +88,12 @@ class PortafolioReal(PortafolioBase):
         composicion["efectivo"] = round(self.capital_disponible / valor_total * 100, 2)
         return composicion
     
+    def get_historial_por_fecha(self, fecha: date) -> list:
+        return self.historial.buscar(lambda t: t.fecha == fecha)
+
+    def get_rentabilidad_neta(self) -> float:
+        dividendos = 0
+        for ticker, activo in self.activos.items():
+            dividendos += activo.get_dividendo_anual() * self.cantidades.get(ticker, 0)
+        rentabilidad_base = self.get_valor_total() - self.capital_inicial
+        return round((rentabilidad_base + dividendos) / self.capital_inicial * 100, 2)
