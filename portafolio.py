@@ -57,3 +57,34 @@ class PortafolioReal(PortafolioBase):
         self.historial.agregar_al_final(t)
         self.ventas.encolar(t)
         return t
+
+    def get_capital_disponible(self) -> float:
+        return self.capital_disponible
+
+    def get_activos(self) -> dict:
+        return self.activos
+
+    def get_cantidad(self, ticker: str) -> float:
+        return self.cantidades.get(ticker, 0)
+
+    def get_historial_transacciones(self) -> list:
+        return self.historial.obtener_todos()
+
+    def get_valor_total(self) -> float:
+        total = self.capital_disponible
+        for ticker, activo in self.activos.items():
+            total += activo.get_precio_actual() * self.cantidades.get(ticker, 0)
+        return round(total, 2)
+
+    def get_rentabilidad(self) -> float:
+        return round((self.get_valor_total() - self.capital_inicial) / self.capital_inicial * 100, 2)
+
+    def get_composicion(self) -> dict:
+        valor_total = self.get_valor_total()
+        composicion = {}
+        for ticker, activo in self.activos.items():
+            valor_activo = activo.get_precio_actual() * self.cantidades.get(ticker, 0)
+            composicion[ticker] = round(valor_activo / valor_total * 100, 2)
+        composicion["efectivo"] = round(self.capital_disponible / valor_total * 100, 2)
+        return composicion
+    
