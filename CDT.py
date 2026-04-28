@@ -1,5 +1,5 @@
 from datetime import date
-from Interfaces import ActivoBase
+from interfaces import ActivoBase
 
 class CDT(ActivoBase):
     #constructor
