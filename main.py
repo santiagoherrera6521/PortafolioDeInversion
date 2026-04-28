@@ -1,13 +1,6 @@
-"""
-main.py — Parte 3: Visualización, reportes y CLI interactivo.
-Punto de entrada del programa. Une todas las partes.
-"""
-
 import os
 import sys
 from datetime import date
-
-# ── Intentar importar módulos reales; si fallan, usar mocks ──────────────────
 
 try:
     from Accion import Accion
@@ -49,7 +42,7 @@ def _graficar_evolucion(portafolio: PortafolioReal):
 
     for f in fechas_set:
         fechas_vistas.append(str(f))
-        valores.append(portafolio.get_valor_total())  # valor actual (simplificado)
+        valores.append(portafolio.get_valor_total())  # valor actual
 
     plt.figure(figsize=(10, 4))
     plt.plot(fechas_vistas, valores, marker="o", color="#2196F3", linewidth=2)
@@ -61,18 +54,18 @@ def _graficar_evolucion(portafolio: PortafolioReal):
     plt.tight_layout()
     plt.savefig("evolucion_portafolio.png", dpi=120)
     plt.show()
-    print("  ✅ Gráfica guardada como 'evolucion_portafolio.png'")
+    print("Gráfica guardada como 'evolucion_portafolio.png'")
 
 
 def _graficar_composicion(portafolio: PortafolioReal):
     """Gráfica de torta con la composición actual del portafolio."""
     if not _MATPLOTLIB:
-        print("  [!] matplotlib no disponible.")
+        print("matplotlib no disponible.")
         return
 
     composicion = portafolio.get_composicion()
     if not composicion:
-        print("  [!] Portafolio vacío — no hay composición que mostrar.")
+        print("Portafolio vacío — no hay composición que mostrar.")
         return
 
     labels = list(composicion.keys())
@@ -87,13 +80,13 @@ def _graficar_composicion(portafolio: PortafolioReal):
     plt.tight_layout()
     plt.savefig("composicion_portafolio.png", dpi=120)
     plt.show()
-    print("  ✅ Gráfica guardada como 'composicion_portafolio.png'")
+    print("Gráfica guardada como 'composicion_portafolio.png'")
 
 
 def _graficar_rendimiento_individual(portafolio: PortafolioReal):
     """Barras comparando el rendimiento de cada activo en el portafolio."""
     if not _MATPLOTLIB:
-        print("  [!] matplotlib no disponible.")
+        print("matplotlib no disponible.")
         return
 
     activos = portafolio.get_activos()
@@ -135,13 +128,13 @@ def _graficar_rendimiento_individual(portafolio: PortafolioReal):
     plt.tight_layout()
     plt.savefig("rendimiento_activos.png", dpi=120)
     plt.show()
-    print("  ✅ Gráfica guardada como 'rendimiento_activos.png'")
+    print("Gráfica guardada como 'rendimiento_activos.png'")
 
 
-# ── Resumen ejecutivo ────────────────────────────────────────────────────────
+# ── Resumen ────────────────────────────────────────────────────────
 
 def _mostrar_resumen(portafolio: PortafolioReal):
-    """Imprime el resumen ejecutivo del portafolio."""
+    """Imprime el resumen del portafolio."""
     sep = "─" * 50
     print(f"\n{'═'*50}")
     print(f"  📊  RESUMEN EJECUTIVO DEL PORTAFOLIO")
@@ -198,7 +191,7 @@ def _crear_activo(modo_real: bool):
             else:
                 return ticker, AccionMock(ticker)
         except Exception as e:
-            print(f"  ❌ Error: {e}")
+            print(f" Error: {e}")
             return None, None
 
     elif tipo == "2":
@@ -228,12 +221,10 @@ def _crear_activo(modo_real: bool):
 
 def main():
     os.system("cls" if os.name == "nt" else "clear")
-    print("╔══════════════════════════════════════════╗")
-    print("║     💼  PORTAFOLIO DE INVERSIÓN  💼      ║")
-    print("║        Estructura de Datos — 2025        ║")
-    print("╚══════════════════════════════════════════╝")
+    print("║     PORTAFOLIO DE INVERSIÓN        ║")
+    print("║    Estructura de Datos — 2026        ║")
 
-    modo = "REAL ✅" if _MODO_REAL else "MOCK 🧪"
+    modo = "REAL" if _MODO_REAL else "MOCK"
     print(f"  Modo: {modo}")
 
     capital = input("\n  Capital inicial ($): ").strip()
@@ -273,7 +264,7 @@ def main():
             opcion = input(MENU).strip()
 
             if opcion == "0":
-                print("\n  ¡Hasta luego! 👋\n")
+                print("\n  ¡Hasta luego! \n")
                 break
 
             elif opcion == "1":
@@ -281,7 +272,7 @@ def main():
                 if activo:
                     portafolio.activos[ticker] = activo
                     portafolio.cantidades.setdefault(ticker, 0)
-                    print(f"  ✅ {activo.get_nombre()} añadido. Precio actual: ${activo.get_precio_actual():,.2f}")
+                    print(f"  {activo.get_nombre()} añadido. Precio actual: ${activo.get_precio_actual():,.2f}")
 
             elif opcion == "2":
                 if not portafolio.activos:
@@ -295,26 +286,26 @@ def main():
                 cantidad = float(input("  Cantidad: ").strip())
                 try:
                     t = portafolio.comprar(ticker, cantidad)
-                    print(f"  ✅ {t}")
+                    print(f"  {t}")
                 except ValueError as e:
-                    print(f"  ❌ {e}")
+                    print(f"  {e}")
 
             elif opcion == "3":
                 tickers_con_posicion = [k for k, v in portafolio.cantidades.items() if v > 0]
                 if not tickers_con_posicion:
-                    print("  [!] No tienes posiciones abiertas para vender.")
+                    print("  No tienes posiciones abiertas para vender.")
                     continue
                 print("  Posiciones abiertas:", tickers_con_posicion)
                 ticker = input("  Ticker a vender: ").strip().upper()
                 if ticker not in portafolio.activos:
-                    print("  ❌ Ticker no encontrado.")
+                    print("  Ticker no encontrado.")
                     continue
                 cantidad = float(input("  Cantidad: ").strip())
                 try:
                     t = portafolio.vender(ticker, cantidad)
-                    print(f"  ✅ {t}")
+                    print(f"  {t}")
                 except ValueError as e:
-                    print(f"  ❌ {e}")
+                    print(f"  {e}")
 
             elif opcion == "4":
                 _mostrar_resumen(portafolio)
@@ -332,10 +323,10 @@ def main():
                 print("  Opción no válida.")
 
         except KeyboardInterrupt:
-            print("\n\n  Interrumpido. ¡Hasta luego! 👋\n")
+            print("\n\n  Interrumpido. ¡Hasta luego!\n")
             break
         except Exception as e:
-            print(f"  ❌ Error inesperado: {e}")
+            print(f"  Error inesperado: {e}")
 
 
 if __name__ == "__main__":
