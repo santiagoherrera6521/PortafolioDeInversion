@@ -1,9 +1,10 @@
 import os
+import json
 from datetime import date
 
 # Importar modulos
 
-from interfaces import ActivoBase, PortafolioBase
+from Interfaces import ActivoBase, PortafolioBase
 from moc_data import ActivoMock, PortafolioMock, crear_portafolio_mock
 
 try:
@@ -41,6 +42,47 @@ try:
 except ImportError:
     _MATPLOTLIB = False
 
+
+
+# Guardar y cargar historial
+
+ARCHIVO_HISTORIAL = "historial_portafolio.json"
+
+def guardar_historial(portafolio): #     Guarda el historial de transacciones y el capital disponible en un archivo JSON
+
+    datos = {
+        "capital_disponible": portafolio.capital_disponible,
+        "transacciones": portafolio.get_historial()
+    }
+    try:
+        with open(ARCHIVO_HISTORIAL, "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        print(f"  Historial guardado en '{ARCHIVO_HISTORIAL}'")
+    except Exception as e:
+        print(f"  No se pudo guardar el historial: {e}")
+
+
+def cargar_historial(portafolio):     # Carga el historial de transacciones guardado en sesiones anteriores y lo agrega al portafolio actual. Si no existe el archivo, no hace nada.
+    
+    if not os.path.exists(ARCHIVO_HISTORIAL):
+        return
+
+    try:
+        with open(ARCHIVO_HISTORIAL, "r", encoding="utf-8") as f:
+            datos = json.load(f)
+
+        portafolio.capital_disponible = datos.get("capital_disponible",
+                                                   portafolio.capital_disponible)
+        transacciones_previas = datos.get("transacciones", [])
+
+        for t in transacciones_previas:
+            portafolio.historial.append(t)
+
+        print(f"  Historial cargado: {len(transacciones_previas)} transacciones previas.")
+    except Exception as e:
+        print(f"  No se pudo cargar el historial anterior: {e}")
+
+
 # VISUALIZACIONES
 
 def _graficar_evolucion(portafolio):
@@ -54,7 +96,6 @@ def _graficar_evolucion(portafolio):
         print("Sin transacciones aún — realiza al menos una compra primero.")
         return
 
-    # Reconstruye el valor acumulado transacción por transacción
     etiquetas = []
     valores = []
     for i, t in enumerate(historial):
@@ -85,7 +126,6 @@ def _graficar_composicion(portafolio):
         print("No hay activos con posición abierta.")
         return
 
-    valor_total = portafolio.get_valor_total()
     labels = []
     valores = []
 
@@ -93,7 +133,6 @@ def _graficar_composicion(portafolio):
         labels.append(a.simbolo)
         valores.append(a.get_valor_actual())
 
-    # Agregar efectivo
     if portafolio.capital_disponible > 0:
         labels.append("Efectivo")
         valores.append(portafolio.capital_disponible)
@@ -108,7 +147,7 @@ def _graficar_composicion(portafolio):
     plt.tight_layout()
     plt.savefig("composicion_portafolio.png", dpi=120)
     plt.show()
-    print("  ✅ Guardada como 'composicion_portafolio.png'")
+    print("Guardada como 'composicion_portafolio.png'")
 
 
 def _graficar_rendimiento_individual(portafolio):
@@ -138,6 +177,7 @@ def _graficar_rendimiento_individual(portafolio):
     plt.savefig("rendimiento_activos.png", dpi=120)
     plt.show()
     print("Guardada como 'rendimiento_activos.png'")
+
 
 # RESUMEN EJECUTIVO
 
@@ -286,8 +326,10 @@ def main():
         capital = 500_000
         print(f"  Usando capital por defecto: ${capital:,.0f}")
 
-    # Usamos PortafolioMock porque es compatible con interfaces.py real
     portafolio = PortafolioMock(capital_inicial=capital)
+
+    # ← NUEVO: cargar historial de sesiones anteriores
+    cargar_historial(portafolio)
 
     MENU = """
   ┌─────────────────────────────────────┐
@@ -307,6 +349,8 @@ def main():
             opcion = input(MENU).strip()
 
             if opcion == "0":
+                # ← NUEVO: guardar historial antes de salir
+                guardar_historial(portafolio)
                 print("\n  ¡Hasta luego! \n")
                 break
             elif opcion == "1":
@@ -327,6 +371,8 @@ def main():
                 print("  Opción no válida.")
 
         except KeyboardInterrupt:
+            # ← NUEVO: guardar también si el usuario interrumpe con Ctrl+C
+            guardar_historial(portafolio)
             print("\n\n  Interrumpido. ¡Hasta luego! \n")
             break
         except Exception as e:
