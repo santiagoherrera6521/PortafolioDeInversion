@@ -1,5 +1,7 @@
 # Simulador de Portafolio de Inversión
 
+<img width="741" height="1054" alt="585744591-365f6ee6-c1df-41d1-a109-792597d84c27" src="https://github.com/user-attachments/assets/9ae7ebac-8126-4405-9f55-af0550606033" />
+
 Proyecto de la materia Estructura de Datos del ITM, 2026.
 
 Es un simuladr de un portafolio de inversiones real: puedes agregar acciones, CDTs y bonos, comprar y vender, y ver cómo va evolucionando tu dinero con el tiempo. Los precios de las acciones son reales y se traen directo de Yahoo Finance con yfinance.
@@ -8,7 +10,7 @@ Es un simuladr de un portafolio de inversiones real: puedes agregar acciones, CD
 
 - Santiago Herrera — Parte 1: activos y datos
 - Julian Zapata — Parte 2: motor de transacciones y estructuras de datos
-- Integrante 3 — Parte 3: visualización e interfaz
+- Juan Diego Muriel — Parte 3: visualización e interfaz
 
 ## Cómo correrlo
 
